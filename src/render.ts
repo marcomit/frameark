@@ -1,7 +1,7 @@
-import { Content, renderToString } from "./components";
+import { Content, renderToString } from "./TreeNodes";
 
-function mount(component: Content){
-  return renderToString(component);
+function mount(TreeNode: Content) {
+  return renderToString(TreeNode);
 }
 
 export { mount };
