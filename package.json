@@ -2,22 +2,32 @@
   "name": "frameark",
   "module": "index.ts",
   "type": "module",
+  "browser": "dist/index.js",
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^26.0.1",
+    "@rollup/plugin-inject": "^5.0.5",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-typescript": "^11.1.6",
     "bun-types": "latest",
-    "typescript": "^5.5.4",
-    "webpack-dev-server": "^5.0.4"
+    "rollup": "^4.21.2",
+    "rollup-plugin-livereload": "^2.0.5",
+    "rollup-plugin-polyfill-node": "^0.13.0",
+    "rollup-plugin-serve": "^1.1.1",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.5.4"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "nanoid": "^5.0.7",
-    "webpack": "^5.94.0",
-    "webpack-cli": "^5.1.4",
+    "crypto-browserify": "^3.12.0",
+    "tslib": "^2.7.0",
     "webpack-dev": "^1.1.1"
   },
   "scripts": {
-    "start": "webpack serve --mode development",
-    "build": "webpack --mode production"
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "start": "npm run dev"
   }
 }
