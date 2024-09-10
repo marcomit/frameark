@@ -1,3 +1,5 @@
+import { getNodeFromId } from "./utils";
+
 export type Tag = keyof HTMLElementTagNameMap;
 export type Event = keyof DocumentEventMap;
 export type EventArgs = HTMLElementEventMap;
@@ -21,11 +23,9 @@ export type TreeNode = {
   ) => TreeNode;
 }
 
-// This is thew stack to keep track of the components tree used to associate events, states, IDs etc
-const path: number[] = [0];
+const autoclosedTags = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
 
-/// This function add the IDs of the current component to the path
-/// the IDs represent the depth of the component in the tree
+// export const path: number[] = [0];
 export function renderToString(head: Content): string {
   if (typeof head !== 'object' || head === null) {
     return String(head);
@@ -36,34 +36,7 @@ export function renderToString(head: Content): string {
     .map(([key, value]) => `${key}="${value}"`)
     .join(' ');
 
-  const childrenHTML = [];
-  for (let i = 0; i < children.length; i++) {
-    path.push(i);
-    const child = children[i];
-    // Set the ID of the component on the child node if it has a TreeNode
-    if (isNode(child)) {
-      (child as TreeNode).id = path.join(' ');
-    }
-
-    childrenHTML.push(renderToString(child));
-    path.pop();
-  }
-
-  return `<${tag}${attributes ? ' ' + attributes : ''}>${childrenHTML.join('')}</${tag}>`;
-}
-
-function getNodeFromId(id: string): HTMLElement | undefined {
-  const path = id.split(' ').map(Number);
-  let node: HTMLElement | undefined = document.body;
-  for (let i = 0; i < path.length; i++) {
-    if (!node) return undefined;
-    const child = node.children[path[i]];
-    if (!child) {
-      return undefined;
-    }
-    node = child as HTMLElement;
-  }
-  return node;
+  return autoclosedTags.has(tag) ? `<${tag} ${attributes} />` : `<${tag}>${children.map(renderToString).join('')}</${tag}>`;
 }
 
 export function loadEvents(head: Content){
@@ -74,22 +47,21 @@ export function loadEvents(head: Content){
         const htmlNode = getNodeFromId(node.id);
         for (const [key, value] of Object.entries(node.props)) {
           if (key.startsWith('on')) {
-            const callback = value;
-            if (typeof callback === 'function') {
+            if (typeof value === 'function') {
               if (htmlNode) {
-                console.log('Adding event listener:', key.slice(2), 'to', htmlNode);
-                htmlNode.addEventListener(key.slice(2), (e) => callback(e));
+                htmlNode.addEventListener(key.slice(2), (e) => value(e));
               }
             }
           }
           else {
-            console.log(key, value);
+            if (htmlNode) {
+              (htmlNode as any)[key] = value;
+            }
           }
         }
       } else {
         console.log('Node props is not an object or is null:', node.props);
       }
-
       for(const child of node.children){
         dfs(child);
       }

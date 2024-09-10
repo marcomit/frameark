@@ -1,19 +1,51 @@
-import { Content, ElementProps, Tag, TreeNode } from "./components";
+import { Content, ElementProps, isNode, Tag, TreeNode } from "./components";
 
+export const path: number[] = [];
 function el(tag: Tag, props: TreeNode['props'], ...children: Content[]): TreeNode {
   const node: TreeNode = {
-    id: '',
+    id: path.join(' '),
     tag,
     props,
-    children,
+    children: (()=>{
+      const newChildren: Content[] = [];
+      for(let i = 0; i < children.length; i++){
+        path.push(i);
+        const child = children[i];
+        if(isNode(child)){
+          const childNode = child as TreeNode
+          childNode.id = path.join(' ') + ' ' + i;
+        }
+        newChildren.push(child)
+        path.pop();
+      }
+    return newChildren;
+})(),
     $: <K extends keyof ElementProps<Tag>>(attr: K, value: ElementProps<keyof HTMLElementTagNameMap>[K]): TreeNode => {
-        (props as Map<string , any>).set(attr, value);
+      if(typeof props === 'object' && props){
+        props[attr] = value;
+      }
       return node;
     },
   };
   return node;
 };
 
+function buildChildren(component: Content): Content[]{
+  if(!isNode(component)){
+    return [component];
+  }
+  const node = component as TreeNode
+  let children: Content[] = []
+  for(let i = 0; i < node.children.length; i++){
+    path.push(i);
+    if(typeof node.children[i] === 'object'){
+      (node.children[i] as TreeNode).id = path.join(' ')
+    }
+    children.push(...buildChildren(node.children[i]))
+    path.pop();
+  }
+  return children
+}
 
 const htmlTags: Tag[] = [
   'a', 'abbr', 'address', 'area', 'article', 'aside', 'audio', 'b', 'base', 'bdi', 'bdo', 'blockquote', 'body', 'br', 'button',
@@ -30,12 +62,14 @@ type TreeNodeFunction = {
   (...children: Content[]): TreeNode;
 };
 
+
+// create the path here
 const functions = Object.fromEntries(htmlTags.map(tag => [
   tag,
   ((...args: any[]) => {
     if (typeof args[0] === 'object' && !Array.isArray(args[0]) && !('tag' in args[0])) {
       const [props = {}, events = {}, ...children] = args;
-      return el(tag, props, events, ...children);
+      return el(tag, {...props, ...events}, ...children);
     } else {
       return el(tag, new Map<string, any>(), ...args);
     }
