@@ -1,21 +1,16 @@
-import { TreeNode, Content, Tag, EventHandler } from "./components";
-import { nanoid } from "./utils";
+import { Content, ElementProps, Tag, TreeNode } from "./components";
 
 function el(tag: Tag, props: TreeNode['props'], ...children: Content[]): TreeNode {
-  const node = {
+  const node: TreeNode = {
     id: '',
     tag,
     props,
     children,
-    attr: (attr: string, value: string): TreeNode => {
-      props.set(attr, value);
+    $: <K extends keyof ElementProps<Tag>>(attr: K, value: ElementProps<keyof HTMLElementTagNameMap>[K]): TreeNode => {
+        (props as Map<string , any>).set(attr, value);
       return node;
     },
-    on: (event: string, callback: EventHandler): TreeNode => {
-      props.set(`on${event}`, callback);
-      return node;
-    },
-  }
+  };
   return node;
 };
 
@@ -42,7 +37,7 @@ const functions = Object.fromEntries(htmlTags.map(tag => [
       const [props = {}, events = {}, ...children] = args;
       return el(tag, props, events, ...children);
     } else {
-      return el(tag, new Map(), ...args);
+      return el(tag, new Map<string, any>(), ...args);
     }
   }) as TreeNodeFunction
 ])) as Record<Tag, TreeNodeFunction>;

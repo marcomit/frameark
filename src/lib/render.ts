@@ -1,4 +1,4 @@
-import { Content, renderToString } from "./components";
+import { Content, loadEvents, renderToString } from "./components";
 
 export var root: Content;
 
@@ -8,6 +8,7 @@ function mount(head: Content) {
   if (mountNode) {
     mountNode.innerHTML = renderToString(head);
   }
+  loadEvents(head);
 }
 
 export { mount };
