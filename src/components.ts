@@ -39,6 +39,8 @@ export function renderToString(head: Content): string {
   return autoclosedTags.has(tag) ? `<${tag} ${attributes} />` : `<${tag}>${children.map(renderToString).join('')}</${tag}>`;
 }
 
+
+
 export function loadEvents(head: Content){
   function dfs(curr: Content){
     const node = isNode(curr);

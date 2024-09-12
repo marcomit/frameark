@@ -1,27 +1,40 @@
 import { Content, ElementProps, isNode, Tag, TreeNode } from "./components";
 
-export const path: number[] = [];
-function el(tag: Tag, props: TreeNode['props'], ...children: Content[]): TreeNode {
+
+export const path: number[] = [0];
+function el(
+  tag: Tag,
+  props: TreeNode["props"],
+  ...children: Content[]
+): TreeNode {
   const node: TreeNode = {
-    id: path.join(' '),
+    id: path.join(" "),
     tag,
     props,
-    children: (()=>{
+    children: (() => {
       const newChildren: Content[] = [];
-      for(let i = 0; i < children.length; i++){
-        path.push(i);
-        const child = children[i];
-        if(isNode(child)){
-          const childNode = child as TreeNode
-          childNode.id = path.join(' ') + ' ' + i;
-        }
-        newChildren.push(child)
+      if (children.length == 0) {
         path.pop();
+        return [];
       }
-    return newChildren;
-})(),
-    $: <K extends keyof ElementProps<Tag>>(attr: K, value: ElementProps<keyof HTMLElementTagNameMap>[K]): TreeNode => {
-      if(typeof props === 'object' && props){
+      for (let i = 0; i < children.length; i++) {
+        console.log(path, children[i]);
+        const child = children[i];
+        if (isNode(child)) {
+          const childNode = child as TreeNode;
+          childNode.id = path.join(" ");
+        } else {
+          path.pop();
+        }
+        newChildren.push(child);
+      }
+      return newChildren;
+    })(),
+    $: <K extends keyof ElementProps<Tag>>(
+      attr: K,
+      value: ElementProps<keyof HTMLElementTagNameMap>[K]
+    ): TreeNode => {
+      if (typeof props === "object" && props) {
         props[attr] = value;
       }
       return node;
