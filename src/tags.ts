@@ -1,48 +1,5 @@
 import { Content, ElementProps, isNode, Tag, TreeNode } from "./components";
 
-
-export const path: number[] = [0];
-function el(
-  tag: Tag,
-  props: TreeNode["props"],
-  ...children: Content[]
-): TreeNode {
-  const node: TreeNode = {
-    id: path.join(" "),
-    tag,
-    props,
-    children: (() => {
-      const newChildren: Content[] = [];
-      if (children.length == 0) {
-        path.pop();
-        return [];
-      }
-      for (let i = 0; i < children.length; i++) {
-        console.log(path, children[i]);
-        const child = children[i];
-        if (isNode(child)) {
-          const childNode = child as TreeNode;
-          childNode.id = path.join(" ");
-        } else {
-          path.pop();
-        }
-        newChildren.push(child);
-      }
-      return newChildren;
-    })(),
-    $: <K extends keyof ElementProps<Tag>>(
-      attr: K,
-      value: ElementProps<keyof HTMLElementTagNameMap>[K]
-    ): TreeNode => {
-      if (typeof props === "object" && props) {
-        props[attr] = value;
-      }
-      return node;
-    },
-  };
-  return node;
-};
-
 function buildChildren(component: Content): Content[]{
   if(!isNode(component)){
     return [component];
@@ -59,6 +16,61 @@ function buildChildren(component: Content): Content[]{
   }
   return children
 }
+
+export const path: number[] = [0];
+var first = true;
+function el(
+  tag: Tag,
+  props: TreeNode["props"],
+  ...children: Content[]
+): TreeNode {
+  console.log(tag, path)
+  if(!children.find((child) => isNode(child))){
+    console.log(tag, 'non ha figli');
+    if(first){
+      console.log('pushing 0')
+      path.push(0);
+    }
+    else{
+      path[path.length - 1]++;
+    }
+    first = false
+  }
+  else{
+    first = true;
+    path.pop();
+  }
+  const node: TreeNode = {
+    id: path.join(' '),
+    tag,
+    props,
+    children: (() => {
+      const newChildren: Content[] = [];
+      for (let i = 0; i < children.length; i++) {
+        const child = children[i];
+        if (isNode(child)) {
+          const childNode = child as TreeNode;
+          path.push(i);
+          childNode.id = path.join(' ');
+          newChildren.push(childNode);
+          path.pop();
+        } else {
+          newChildren.push(child);
+        }
+      }
+      return newChildren;
+    })(),
+    $: <K extends keyof ElementProps<Tag>>(attr: K,
+      value: ElementProps<keyof HTMLElementTagNameMap>[K]): TreeNode => {
+      if (typeof props === "object" && props) {
+        props[attr] = value;
+      }
+      return node;
+    },
+  };
+  return node;
+};
+
 
 const htmlTags: Tag[] = [
   'a', 'abbr', 'address', 'area', 'article', 'aside', 'audio', 'b', 'base', 'bdi', 'bdo', 'blockquote', 'body', 'br', 'button',
@@ -99,4 +111,3 @@ export const {
   sup, table, tbody, td, template, textarea, tfoot, th, thead, time, title, tr, track, u, ul,
   video, wbr
 } = functions;
-a()

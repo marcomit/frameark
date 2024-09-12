@@ -23,7 +23,7 @@ export type TreeNode = {
   ) => TreeNode;
 }
 
-const autoclosedTags = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
+const selfClosedTags = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
 
 // export const path: number[] = [0];
 export function renderToString(head: Content): string {
@@ -36,10 +36,8 @@ export function renderToString(head: Content): string {
     .map(([key, value]) => `${key}="${value}"`)
     .join(' ');
 
-  return autoclosedTags.has(tag) ? `<${tag} ${attributes} />` : `<${tag}>${children.map(renderToString).join('')}</${tag}>`;
+  return selfClosedTags.has(tag) ? `<${tag} ${attributes} />` : `<${tag}>${children.map(renderToString).join('')}</${tag}>`;
 }
-
-
 
 export function loadEvents(head: Content){
   function dfs(curr: Content){

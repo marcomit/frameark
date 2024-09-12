@@ -1,26 +1,29 @@
 import { state } from "./states";
-import { div, h1, h2, h3, h4, h5, h6, link, span, strong } from "./tags";
+import { a, div, h1, h2, h6, link, span, strong } from "./tags";
 
-const app = () => div(h1('Hello, World!'), Test());
+const app = () => div(// 0
+  h1('Hello, World!'),// 0 0
+  Test());
 function Test() {
   var counter = state(0)
-  return div(
-    h1("Hello, World!"),
-    link({rel: "stylesheet", href: "style.css"}),
-    h1({className: 'counter'}, counter.value).$(
+  return div(// 0 1
+    h1("Hello, World!"),//0 1 0
+    link({rel: "stylesheet", href: "style.css"}),// 0 1 1
+    h1({className: 'counter'}, counter.value).$(// 0 1 2
       'onclick', () => {
       counter.value++;
-      console.log(counter.value)
     }),
-    h2(counter.value),
-    h2(counter.value),
-    h2(counter.value),
-    h2(counter.value),
-    h3("Prova"),
-    h4("slkdfjnvsldkjfvn"),
-    h5("Prova"),
-    h6(span("PRRlkjsdnfblbvkjsdnfgb"), strong("prova")),
-    h1('gfsdfghjk')
+    a(// 0 1 3
+      a(),// 0 1 3 0
+      h1(// 0 1 3 1
+        h2("Hello, World!")// 0 1 3 1 0
+    )
+    ),
+    h6(// 0 1 4
+      span("PRRlkjsdnfblbvkjsdnfgb"),// 0 1 4 0
+      strong("prova")// 0 1 4 1
+    ),
+    h1('gfsdfghjk')// 0 1 5
   )
 }
 

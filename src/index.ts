@@ -1,8 +1,8 @@
 import { default as entry } from "./app";
-import { mount, root } from "./render";
+import { mount } from "./render";
 
 
 (()=>{
+  console.log('---------------------------------')
   mount(entry())
-  console.log(root)
 })();
