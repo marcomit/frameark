@@ -26,9 +26,6 @@ function handler<T extends object>(stateId: number) {
       if (!listener.get(stateId)!.has((currentId + 1).toString())) {
         listener.get(stateId)!.add((currentId + 1).toString());
       }
-      console.log(currentId);
-
-      // console.log(getNodeFromId((currentId + 1).toString()));
       return Reflect.get(target, p);
     },
     set(target: T, p: string | symbol, newValue: T[keyof T]) {
@@ -36,10 +33,8 @@ function handler<T extends object>(stateId: number) {
         (target as any)[p] = newValue;
 
         listener.get(stateId)!.forEach((id) => {
-          console.log(id);
           const node = getNodeFromId(id);
-          if (node) rebuild(node);
-          // else throw new Error(`Node ${id} not found`);
+          if (node) rebuild(node, newValue);
         });
 
         return true;

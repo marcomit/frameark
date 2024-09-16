@@ -10,7 +10,7 @@ function el(
   ...children: Content[]
 ): TreeNode {
   currentId = global("node", (old) => old + 1);
-  console.log(tag, currentId);
+  // console.log(tag, currentId);
   const node: TreeNode = {
     path: getPathFromNode(root, currentId.toString()) || [0],
     id: currentId.toString(),

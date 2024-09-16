@@ -33,10 +33,10 @@ function Test() {
       "ciao da marco"
     ),
     // link({ rel: "stylesheet", href: "style.css" }),
-    h1({ className: "h1" }, counter.value),
+    h1({ className: "h1" }, `counter: ${counter.value}`),
     h6(span("PRRlkjsdnfblbvkjsdnfgb"), strong("prova")),
     h1({ className: "counter" }, counter.value).$("onclick", () => {
-      // console.log(counter);
+      console.log(counter.value);
       counter.value++;
     }),
     a(a(), h1(h2("Hello, World!"))),

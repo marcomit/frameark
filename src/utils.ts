@@ -67,6 +67,14 @@ function getPathFromNode(head: Content, id: string) {
   return backtrack(head);
 }
 
+function getElementFromPath(node: TreeNode){
+  var element: HTMLElement = document.body;
+  for(let i = 0; i < node.path.length; i++){
+    element = element.children[node.path[i]] as HTMLElement;
+  }
+  return element;
+}
+
 function isNode(content: Content): TreeNode | undefined {
   if (
     content &&
@@ -79,4 +87,4 @@ function isNode(content: Content): TreeNode | undefined {
   return undefined;
 }
 
-export { getNodeFromId, getPathFromNode, global, isNode, random };
+export { getElementFromPath, getNodeFromId, getPathFromNode, global, isNode, random };
