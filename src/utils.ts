@@ -16,6 +16,12 @@ const globals = {
   node: 0,
 };
 
+const TODO = new Proxy({}, {
+  get(target, p, receiver) {
+    throw new Error("TODO");
+  },
+})
+
 function global<T extends keyof typeof globals>(
   provider: T,
   newValue:
@@ -87,4 +93,4 @@ function isNode(content: Content): TreeNode | undefined {
   return undefined;
 }
 
-export { getElementFromPath, getNodeFromId, getPathFromNode, global, isNode, random };
+export { getElementFromPath, getNodeFromId, getPathFromNode, global, isNode, random, TODO };

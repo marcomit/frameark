@@ -1,6 +1,6 @@
 import { ref } from "./hooks/ref";
 import { Content, TreeNode } from "./types";
-import { getElementFromPath, isNode } from "./utils";
+import { isNode } from "./utils";
 
 const selfClosedTags = new Set([
   "area",
@@ -62,7 +62,6 @@ function loadEvents(head: Content) {
 }
 
 function rebuild(head: TreeNode, newValue: any) {
-  getElementFromPath(head).innerHTML = newValue;
   console.log(renderToString(head));
 }
 
