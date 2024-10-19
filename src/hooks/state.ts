@@ -10,18 +10,28 @@ const listener: Map<number, Set<string>> = new Map<number, Set<string>>();
 
 type RefReturn<T> = T extends object ? T : { value: T };
 function state<T>(value: T): RefReturn<T> {
-  return stateWithID(value, global("state", (old) => old + 1))
+  return recursiveProxy(
+    value,
+    global("state", (old) => old + 1)
+  );
 }
 
-function stateWithID<T>(value: T, stateId: number): RefReturn<T> {
+function recursiveProxy<T>(
+  value: T,
+  stateId: number,
+  path: (string | symbol)[] = []
+): RefReturn<T> {
   return new Proxy<RefReturn<T>>(
     (value && typeof value === "object" ? value : { value }) as RefReturn<T>,
-    handler(stateId)
+    handler(stateId, path)
   );
 }
 
 // HANDLER
-function handler<T extends object>(stateId: number) {
+function handler<T extends object>(
+  stateId: number,
+  path: (string | symbol)[] = []
+) {
   return {
     get(target: T, p: string | symbol, receiver: any) {
       if (!listener.has(stateId)) {
@@ -30,11 +40,13 @@ function handler<T extends object>(stateId: number) {
       if (!listener.get(stateId)!.has((currentId + 1).toString())) {
         listener.get(stateId)!.add((currentId + 1).toString());
       }
-      console.log(target, p, receiver, `{${stateId}|${p as string}}`)
-      if(typeof target[p as keyof T] === 'object' && target[p as keyof T] !== null){
-        return stateWithID(target[p as keyof T], stateId)
+      if (
+        typeof target[p as keyof T] === "object" &&
+        target[p as keyof T] !== null
+      ) {
+        return recursiveProxy(target[p as keyof T], stateId, [...path, p]);
       }
-      return `{${stateId}|${p as string}}`
+      return `{${stateId}.${[...path, p].join(".")}}`;
       // return Reflect.get(target, p, receiver);
     },
     set(target: T, p: string | symbol, newValue: T[keyof T]) {
@@ -53,7 +65,5 @@ function handler<T extends object>(stateId: number) {
     },
   };
 }
-
-
 
 export { state };
