@@ -33,7 +33,7 @@ function handler<T extends object>(
   path: (string | symbol)[] = []
 ) {
   return {
-    get(target: T, p: string | symbol, receiver: any) {
+    get(target: T, p: string | symbol) {
       if (!listener.has(stateId)) {
         listener.set(stateId, new Set<string>());
       }
@@ -46,24 +46,21 @@ function handler<T extends object>(
       ) {
         return recursiveProxy(target[p as keyof T], stateId, [...path, p]);
       }
-      return `{${stateId}.${[...path, p].join(".")}}`;
+      return eval("(() => Reflect.get(target, p))()");
+      // return `{${stateId}.${[...path, p].join(".")}}`;
       // return Reflect.get(target, p, receiver);
     },
     set(target: T, p: string | symbol, newValue: T[keyof T]) {
-      console.log(p, newValue);
-      if (p in target) {
-        (target as any)[p] = newValue;
+      Reflect.set(target, p, newValue);
+      listener.get(stateId)!.forEach((id) => {
+        const node = getNodeFromId(id);
+        if (node) rebuild<T>(node, newValue, stateId, [...path, p]);
+      });
 
-        listener.get(stateId)!.forEach((id) => {
-          const node = getNodeFromId(id);
-          if (node) rebuild(node, newValue);
-        });
-
-        return true;
-      }
-      return false;
+      return true;
     },
   };
 }
+
 
 export { state };

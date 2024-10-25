@@ -1,6 +1,6 @@
 import { ref } from "./hooks/ref";
 import { Content, TreeNode } from "./types";
-import { isNode } from "./utils";
+import { getElementFromPath, isNode } from "./utils";
 
 const selfClosedTags = new Set([
   "area",
@@ -19,6 +19,8 @@ const selfClosedTags = new Set([
   "wbr",
 ]);
 
+function replaceState(head: Content, stateId: string) {}
+
 // export const path: number[] = [0];
 function renderToString(head: Content): string {
   if (!isNode(head)) {
@@ -28,8 +30,8 @@ function renderToString(head: Content): string {
   const { tag, props, children = [] } = head as TreeNode;
 
   return selfClosedTags.has(tag)
-  /* here */
-    ? `<${tag}/>`
+    ? /* here */
+      `<${tag}/>`
     : `<${tag}>${children.map(renderToString).join("")}</${tag}>`;
 }
 
@@ -61,8 +63,30 @@ function loadEvents(head: Content) {
   dfs(head);
 }
 
-function rebuild(head: TreeNode, newValue: any) {
-  console.log(renderToString(head));
+function rebuild<T extends object>(
+  head: TreeNode,
+  newValue: T[keyof T],
+  stateId: number,
+  path: (string | symbol)[]
+) {
+  const element = getElementFromPath(head);
+  if (!element) {
+    throw new Error("Bad state");
+  }
+  console.log(element);
+  const stateIdentifier = `{${stateId}.${path.join(".")}}`;
+  checkChildren(element, stateIdentifier, String(newValue));
+}
+
+function checkAttributes() {}
+
+function checkChildren(
+  element: HTMLElement,
+  stateId: string,
+  newValue: string
+) {
+  const content = element.innerHTML;
+  element.innerHTML = content.replace(stateId, newValue);
 }
 
 export { loadEvents, rebuild, renderToString };

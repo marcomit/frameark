@@ -1,5 +1,5 @@
 import { default as entry } from "./app";
-import { mount } from "./render";
+import { mount, root } from "./render";
 
 (() => {
   // First time run.
@@ -9,4 +9,5 @@ import { mount } from "./render";
   mount(entry());
   // change the root to evaluate the path for each child
   mount(entry());
+  console.log(root);
 })();

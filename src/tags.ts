@@ -2,6 +2,7 @@ import { root } from "./render";
 import { Content, ElementProps, Tag, TreeNode } from "./types";
 import { getPathFromNode, global } from "./utils";
 
+export let mode = "";
 export let currentId = 0;
 
 function el(
@@ -10,6 +11,7 @@ function el(
   ...children: Content[]
 ): TreeNode {
   currentId = global("node", (old) => old + 1);
+
   // console.log(tag, currentId);
   const node: TreeNode = {
     path: getPathFromNode(root, currentId.toString()) || [0],
@@ -27,7 +29,42 @@ function el(
       return node;
     },
   };
+  // Track state usage in props
+  trackStateUsage(props, node, "props");
+
+  // Track state usage in children
+  children.forEach((child) => {
+    trackStateUsage(child, node, "children");
+  });
   return node;
+}
+
+// Function to track state usage
+function trackStateUsage(value: any, node: TreeNode, context: string) {
+  if (typeof value === "function") {
+    // Here, you can register that this state is being used
+    registerStateUsage(value, node, context);
+  } else if (Array.isArray(value)) {
+    value.forEach((item) => trackStateUsage(item, node, context));
+  } else if (typeof value === "object" && value !== null) {
+    for (let key in value) {
+      trackStateUsage(value[key], node, context);
+    }
+  }
+}
+
+// Function to register state usage
+function registerStateUsage(
+  stateFunc: Function,
+  node: TreeNode,
+  context: string
+) {
+  // Logic to store the context of state usage
+  // You might want to save something like this:
+  // usageMap[stateFunc].push({ nodeId: node.id, context });
+  // console.log(
+  //   `State function used in ${context} of node ${node.id} ${node.path}`
+  // );
 }
 
 const htmlTags: Tag[] = [

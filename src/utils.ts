@@ -1,5 +1,35 @@
+import Semaphore from "ts-semaphore";
 import { root } from "./render";
 import { Content, TreeNode } from "./types";
+
+function validate(model: object, obj: object): boolean {
+  const keys = Object.keys(model);
+  for (const key of keys) {
+    if (!(key in obj)) {
+      return false;
+    }
+    const value = obj[key as keyof typeof obj];
+    if (
+      value &&
+      typeof value === "object" &&
+      !validate((model as any)[key], value)
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function getValueFromKeys(target: object, keys: (string | symbol)[]) {
+  let copy = Object.freeze(target);
+  for (const key of keys) {
+    if (!(key in copy)) {
+      throw new Error("Bad object values");
+    }
+    copy = Object.freeze((copy as any)[key]);
+  }
+  return copy;
+}
 
 function random(length: number = 10) {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx"
@@ -14,20 +44,25 @@ function random(length: number = 10) {
 const globals = {
   state: 0,
   node: 0,
+  semaphore: new Semaphore(1),
 };
 
-const TODO = new Proxy({}, {
-  get(target, p, receiver) {
-    throw new Error("TODO");
-  },
-})
+const TODO = new Proxy(
+  {},
+  {
+    get(target, p, receiver) {
+      throw new Error("TODO");
+    },
+  }
+);
 
 function global<T extends keyof typeof globals>(
   provider: T,
-  newValue:
+  newValue?:
     | (typeof globals)[T]
     | ((oldValue: (typeof globals)[T]) => (typeof globals)[T])
-): number {
+): (typeof globals)[T] {
+  if (newValue === undefined) return globals[provider];
   if (typeof newValue === "function") {
     globals[provider] = newValue(globals[provider]);
   } else {
@@ -73,9 +108,9 @@ function getPathFromNode(head: Content, id: string) {
   return backtrack(head);
 }
 
-function getElementFromPath(node: TreeNode){
+function getElementFromPath(node: TreeNode) {
   var element: HTMLElement = document.body;
-  for(let i = 0; i < node.path.length; i++){
+  for (let i = 0; i < node.path.length; i++) {
     element = element.children[node.path[i]] as HTMLElement;
   }
   return element;
@@ -93,4 +128,14 @@ function isNode(content: Content): TreeNode | undefined {
   return undefined;
 }
 
-export { getElementFromPath, getNodeFromId, getPathFromNode, global, isNode, random, TODO };
+export {
+  getElementFromPath,
+  getNodeFromId,
+  getPathFromNode,
+  getValueFromKeys,
+  global,
+  isNode,
+  random,
+  TODO,
+  validate,
+};
