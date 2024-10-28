@@ -1,6 +1,6 @@
 import Semaphore from "ts-semaphore";
+import { Content, TreeNode } from "../types";
 import { root } from "./render";
-import { Content, TreeNode } from "./types";
 
 function validate(model: object, obj: object): boolean {
   const keys = Object.keys(model);

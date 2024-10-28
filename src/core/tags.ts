@@ -1,5 +1,5 @@
+import { Content, ElementProps, Tag, TreeNode } from "../types";
 import { root } from "./render";
-import { Content, ElementProps, Tag, TreeNode } from "./types";
 import { getPathFromNode, global } from "./utils";
 
 export let mode = "";

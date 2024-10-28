@@ -28,3 +28,5 @@ export type TreeNode = {
     value: ElementProps<Tag>[K]
   ) => TreeNode;
 };
+export type RefReturn<T> = T extends object ? T : { value: T };
+

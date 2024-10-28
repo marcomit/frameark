@@ -1,5 +1,5 @@
+import { TreeNode } from "../types";
 import { loadEvents, renderToString } from "./components";
-import { TreeNode } from "./types";
 import { global } from "./utils";
 
 export var root: TreeNode;

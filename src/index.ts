@@ -1,5 +1,5 @@
 import { default as entry } from "./app";
-import { mount, root } from "./render";
+import { mount, root } from "./core/render";
 
 (() => {
   // First time run.

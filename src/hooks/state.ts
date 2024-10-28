@@ -1,14 +1,14 @@
 // Here you must define a Proxy object to detect the state changes, with a unique ID
 // the key is used to identify the state changes
 
-import { rebuild } from "../components";
-import { currentId } from "../tags";
-import { getNodeFromId, global } from "../utils";
+import { rebuild } from "../core/components";
+import { currentId } from "../core/tags";
+import { getNodeFromId, global } from "../core/utils";
+import { RefReturn } from "../types";
 
 // the value is the path of the state changes
 const listener: Map<number, Set<string>> = new Map<number, Set<string>>();
 
-type RefReturn<T> = T extends object ? T : { value: T };
 function state<T>(value: T): RefReturn<T> {
   return recursiveProxy(
     value,
@@ -33,7 +33,7 @@ function handler<T extends object>(
   path: (string | symbol)[] = []
 ) {
   return {
-    get(target: T, p: string | symbol) {
+    get(target: T, p: string | symbol, receiver: T) {
       if (!listener.has(stateId)) {
         listener.set(stateId, new Set<string>());
       }
@@ -46,15 +46,15 @@ function handler<T extends object>(
       ) {
         return recursiveProxy(target[p as keyof T], stateId, [...path, p]);
       }
-      return eval("(() => Reflect.get(target, p))()");
-      // return `{${stateId}.${[...path, p].join(".")}}`;
-      // return Reflect.get(target, p, receiver);
+      return Reflect.get(target, p);
     },
     set(target: T, p: string | symbol, newValue: T[keyof T]) {
-      Reflect.set(target, p, newValue);
+      // Reflect.set(target, p, newValue, receiver);
+      // console.log(target, p, newValue);
+      (target as any)[p] = newValue;
       listener.get(stateId)!.forEach((id) => {
         const node = getNodeFromId(id);
-        if (node) rebuild<T>(node, newValue, stateId, [...path, p]);
+        if (node) rebuild<T>(node, newValue, stateId.toString(), [...path, p]);
       });
 
       return true;
@@ -62,5 +62,16 @@ function handler<T extends object>(
   };
 }
 
+function change<T>(state: T, callback: T | ((old: T) => T)): T {
+  console.log(state);
+  if (typeof callback === "function") {
+    state = (callback as Function)(state);
+  } else {
+    state = callback;
+  }
+  console.log(state);
+  return state;
+}
 
-export { state };
+export { change, state };
+

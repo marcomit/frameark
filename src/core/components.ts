@@ -1,5 +1,5 @@
-import { ref } from "./hooks/ref";
-import { Content, TreeNode } from "./types";
+import { ref } from "../hooks/ref";
+import { Content, TreeNode } from "../types";
 import { getElementFromPath, isNode } from "./utils";
 
 const selfClosedTags = new Set([
@@ -66,7 +66,7 @@ function loadEvents(head: Content) {
 function rebuild<T extends object>(
   head: TreeNode,
   newValue: T[keyof T],
-  stateId: number,
+  stateId: string,
   path: (string | symbol)[]
 ) {
   const element = getElementFromPath(head);
@@ -74,8 +74,9 @@ function rebuild<T extends object>(
     throw new Error("Bad state");
   }
   console.log(element);
+  console.log(newValue);
   const stateIdentifier = `{${stateId}.${path.join(".")}}`;
-  checkChildren(element, stateIdentifier, String(newValue));
+  checkChildren(element, stateId, String(newValue));
 }
 
 function checkAttributes() {}

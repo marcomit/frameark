@@ -1,5 +1,5 @@
+import { a, div, h1, h2, h5, h6, link, p, span, strong } from "./core/tags";
 import { state } from "./hooks/state";
-import { a, div, h1, h2, h5, h6, link, p, span, strong } from "./tags";
 const app = () =>
   div(
     // 0
@@ -27,8 +27,7 @@ function Test() {
     h6(span("PRRlkjsdnfblbvkjsdnfgb"), strong("prova")),
     p(test.value),
     h1({ className: "counter" }, counter.value.nested).$("onclick", () => {
-      counter.value.nested += "ciao";
-      test.value += 1;
+      test.value = test.value + 1;
     }),
     a(a(), h1(h2("Hello, World!"))),
     h5("gfsdfghjk")
