@@ -8,13 +8,19 @@ import { RefReturn } from "../types";
 
 // the value is the path of the state changes
 const listener: Map<number, Set<string>> = new Map<number, Set<string>>();
-
+const states: Map<number, object> = new Map<number, object>();
 function state<T>(value: T): RefReturn<T> {
-  return recursiveProxy(
-    value,
-    global("state", (old) => old + 1)
-  );
+  const stateId = global("state", (old) => old + 1);
+  const proxy = recursiveProxy(value, stateId);
+  if (states.has(stateId)) return states.get(stateId) as RefReturn<T>;
+  states.set(stateId, proxy);
+  return recursiveProxy(value, stateId);
 }
+
+/// PER GLI STATI
+/// al 'finto' dom aggiungo {stateId.path[]}
+/// e quando quando converto l'albero in html, faccio un replace
+/// con il valore corretto
 
 function recursiveProxy<T>(
   value: T,
@@ -54,6 +60,7 @@ function handler<T extends object>(
       (target as any)[p] = newValue;
       listener.get(stateId)!.forEach((id) => {
         const node = getNodeFromId(id);
+        if (node) console.log(node);
         if (node) rebuild<T>(node, newValue, stateId.toString(), [...path, p]);
       });
 
