@@ -1,7 +1,7 @@
 import { default as entry } from "./app";
-import { mount, root } from "./core/render";
+import { mount } from "./core/render";
 
-(() => {
+// (() => {
   // First time run.
   // Add only the current index of the node
   // entry();
@@ -9,5 +9,4 @@ import { mount, root } from "./core/render";
   mount(entry());
   // change the root to evaluate the path for each child
   mount(entry());
-  console.log(root);
-})();
+// })();

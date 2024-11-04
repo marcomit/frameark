@@ -1,11 +1,7 @@
 export type Tag = keyof HTMLElementTagNameMap;
 export type Event = keyof DocumentEventMap;
-export type EventArgs = HTMLElementEventMap;
 export type TreeNodeId = string;
-export type EventHandler<K extends Event> = (
-  this: Document,
-  ev: DocumentEventMap[K]
-) => any;
+
 export type Content = string | number | boolean | null | undefined | TreeNode;
 export type ElementAttributes<T extends Tag> = Partial<
   HTMLElementTagNameMap[T]

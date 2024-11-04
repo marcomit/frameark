@@ -1,6 +1,5 @@
 // Here you must define a Proxy object to detect the state changes, with a unique ID
 // the key is used to identify the state changes
-
 import { rebuild } from "../core/components";
 import { currentId } from "../core/tags";
 import { getNodeFromId, global } from "../core/utils";
@@ -17,6 +16,14 @@ function state<T>(value: T): RefReturn<T> {
   return recursiveProxy(value, stateId);
 }
 
+function getProxyFromId(state: object): number {
+  for (const [key, value] of states) {
+    if (value === state) {
+      return key;
+    }
+  }
+  return -1;
+}
 /// PER GLI STATI
 /// al 'finto' dom aggiungo {stateId.path[]}
 /// e quando quando converto l'albero in html, faccio un replace
@@ -80,5 +87,5 @@ function change<T>(state: T, callback: T | ((old: T) => T)): T {
   return state;
 }
 
-export { change, state };
+export { change, getProxyFromId, state };
 

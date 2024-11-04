@@ -19,8 +19,6 @@ const selfClosedTags = new Set([
   "wbr",
 ]);
 
-function replaceState(head: Content, stateId: string) {}
-
 // export const path: number[] = [0];
 function renderToString(head: Content): string {
   if (!isNode(head)) {
